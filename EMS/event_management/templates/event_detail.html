@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ event.name }} - Event Management System{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="event-details">
+        <h1>{{ event.name }}</h1>
+        <div class="event-meta">
+            <p><i class="fas fa-calendar"></i> {{ event.date|date:"Y-m-d H:i" }}</p>
+            <p><i class="fas fa-map-marker-alt"></i> {{ event.location }}</p>
+            <p><i class="fas fa-ticket-alt"></i> Available Seats: {{ event.available_seats }}/{{ event.capacity }}</p>
+            {% if event.price > 0 %}
+                <p><i class="fas fa-tag"></i> Price: ${{ event.price|floatformat:2 }}</p>
+            {% else %}
+                <p><i class="fas fa-tag"></i> Free Event</p>
+            {% endif %}
+            <p><i class="fas fa-info-circle"></i> Source: {{ event.source }}</p>
+        </div>
+
+        <div class="event-description">
+            <h3>Description</h3>
+            <p>{{ event.description }}</p>
+        </div>
+
+        {% if user.is_authenticated %}
+            {% if event.available_seats > 0 and not user_has_booking %}
+                <div class="booking-section mt-4">
+                    <h3>Book This Event</h3>
+                    <form action="{% url 'book_event' event.id %}" method="POST" class="booking-form">
+                        {% csrf_token %}
+                        {{ booking_form.as_p }}
+                        <button type="submit" class="btn btn-primary">Book Now</button>
+                    </form>
+                </div>
+            {% elif user_has_booking %}
+                <div class="alert alert-info">
+                    You have already booked this event. Check your <a href="{% url 'user_bookings' %}">bookings</a>.
+                </div>
+            {% else %}
+                <div class="alert alert-warning">
+                    Sorry, this event is fully booked.
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="alert alert-info">
+                Please <a href="{% url 'login' %}?next={{ request.path }}">login</a> to book this event.
+            </div>
+        {% endif %}
+
+        {% if event.source == 'django' %}
+            <div class="reviews-section mt-4">
+                <h3>Reviews</h3>
+                {% if reviews %}
+                    <div class="average-rating mb-3">
+                        Average Rating: {{ event.get_average_rating|floatformat:1 }} / 5.0
+                    </div>
+                    <div class="review-list">
+                        {% for review in reviews %}
+                            <div class="review-item card mb-3">
+                                <div class="card-body">
+                                    <div class="rating">
+                                        {% with ''|center:review.rating as range %}
+                                            {% for _ in range %}★{% endfor %}
+                                        {% endwith %}
+                                        {% with ''|center:5|slice:review.rating as range %}
+                                            {% for _ in range %}☆{% endfor %}
+                                        {% endwith %}
+                                    </div>
+                                    <p class="review-content">{{ review.content }}</p>
+                                    <small class="text-muted">
+                                        By {{ review.user.username }} on {{ review.created_at|date:"Y-m-d" }}
+                                    </small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>No reviews yet. Be the first to review!</p>
+                {% endif %}
+
+                {% if user.is_authenticated %}
+                    <div class="review-form-section mt-4">
+                        <h4>Leave a Review</h4>
+                        <form action="{% url 'submit_review' event.id %}" method="POST" class="review-form">
+                            {% csrf_token %}
+                            {{ review_form.as_p }}
+                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/main.js' %}"></script>
+{% endblock %}

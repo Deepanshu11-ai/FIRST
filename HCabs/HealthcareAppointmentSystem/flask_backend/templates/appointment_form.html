@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}
+    {% if edit_doctor %}Edit Doctor{% else %}Book Appointment{% endif %}
+{% endblock %}
+{% block content %}
+    <h2>
+        {% if edit_doctor %}Edit Doctor{% else %}Book Appointment{% endif %}
+    </h2>
+    <form method="post">
+        {% if edit_doctor %}
+            <p>
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" value="{{ doctor.name }}" required>
+            </p>
+            <p>
+                <label for="specialization">Specialization:</label>
+                <input type="text" id="specialization" name="specialization" value="{{ doctor.doctor.specialization }}" required>
+            </p>
+        {% else %}
+            <p

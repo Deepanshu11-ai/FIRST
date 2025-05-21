@@ -1,0 +1,23 @@
+<nav>
+    <a href="{% url 'logout' %}">Logout</a> |
+    <a href="{% url 'doctor_dashboard' %}">Dashboard</a> |
+    <a href="{% url 'manage_availability' %}">Manage Availability</a>
+</nav>
+
+<ul>
+    {% for appointment in appointments %}
+    <li>
+        Appointment ID: {{ appointment.id }}<br>
+        Patient: {{ appointment.patient }}<br>
+        Date: {{ appointment.date }}<br>
+        Reason: {{ appointment.reason }}<br>
+        Status: {{ appointment.status }}<br>
+        {% if appointment.status == 'scheduled' %}
+            <a href="{% url 'complete_appointment' appointment.id %}">Complete</a> |
+            <a href="{% url 'cancel_appointment' appointment.id %}">Cancel</a>
+        {% endif %}
+    </li>
+    {% empty %}
+    <li>No appointments found.</li>
+    {% endfor %}
+</ul>

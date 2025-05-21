@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Patient Dashboard</title>
+    <style>
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Welcome, {{ username }}!</h1>
+    {% if messages %}
+        {% for message in messages %}
+            <p class="{{ message.tags }}">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+    <h2>Your Appointments</h2>
+    <ul>
+        {% for appointment in appointments %}
+            <li>
+                Doctor: {{ appointment.doctor }} |
+                Date: {{ appointment.date }} |
+                Reason: {{ appointment.reason }} |
+                Status: {{ appointment.status }}
+            </li>
+        {% empty %}
+            <li>No appointments</li>
+        {% endfor %}
+    </ul>
+    <h2>Book Appointment</h2>
+    <form method="post">
+        {% csrf_token %}
+        <label>Doctor:</label>
+        <select name="doctor_id" required>
+            {% for doctor in doctors %}
+                <option value="{{ doctor.id }}">{{ doctor.username }}</option>
+            {% endfor %}
+        </select><br>
+        <label>Date and Time:</label>
+        <input type="datetime-local" name="date" required><br>
+        <label>Reason:</label>
+        <textarea name="reason" required></textarea><br>
+        <button type="submit">Book Appointment</button>
+    </form>
+    <a href="{% url 'logout' %}">Logout</a>
+</body>
+</html>

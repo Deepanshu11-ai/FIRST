@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Bookings - Event Management System{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>My Bookings</h1>
+    
+    <div class="booking-filters mb-4">
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-outline-primary active" data-filter="all">All</button>
+            <button type="button" class="btn btn-outline-primary" data-filter="upcoming">Upcoming</button>
+            <button type="button" class="btn btn-outline-primary" data-filter="past">Past</button>
+        </div>
+    </div>
+
+    <div class="booking-list">
+        {% if bookings %}
+            {% for booking in bookings %}
+                <div class="booking-item card mb-3" 
+                     data-date="{{ booking.event.date|date:'Y-m-d' }}"
+                     data-status="{{ booking.status }}">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h4 class="card-title">{{ booking.event.name }}</h4>
+                                <p class="card-text">
+                                    <i class="fas fa-calendar"></i> 
+                                    {{ booking.event.date|date:"Y-m-d H:i" }}
+                                </p>
+                                <p class="card-text">
+                                    <i class="fas fa-map-marker-alt"></i> 
+                                    {{ booking.event.location }}
+                                </p>
+                                {% if booking.notes %}
+                                    <p class="card-text">
+                                        <i class="fas fa-comment"></i>
+                                        Notes: {{ booking.notes }}
+                                    </p>
+                                {% endif %}
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        Booked on {{ booking.booking_date|date:"Y-m-d" }}
+                                    </small>
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-right">
+                                <div class="booking-status mb-3">
+                                    <span class="badge badge-{{ booking.status|lower }}">
+                                        {{ booking.status }}
+                                    </span>
+                                </div>
+                                <div class="booking-actions">
+                                    <a href="{% url 'event_detail' booking.event.id %}" 
+                                       class="btn btn-info btn-sm mb-2">
+                                        View Event Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info">
+                You haven't made any bookings yet. 
+                <a href="{% url 'home' %}">Browse available events</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterButtons = document.querySelectorAll('.booking-filters button');
+    const today = new Date().toISOString().split('T')[0];
+    
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            const filter = this.getAttribute('data-filter');
+            const bookings = document.querySelectorAll('.booking-item');
+            
+            bookings.forEach(booking => {
+                const bookingDate = booking.getAttribute('data-date');
+                
+                if (filter === 'all') {
+                    booking.style.display = 'block';
+                } else if (filter === 'upcoming' && bookingDate >= today) {
+                    booking.style.display = 'block';
+                } else if (filter === 'past' && bookingDate < today) {
+                    booking.style.display = 'block';
+                } else {
+                    booking.style.display = 'none';
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}
