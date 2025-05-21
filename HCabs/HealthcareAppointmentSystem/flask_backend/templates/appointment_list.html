@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Appointments{% endblock %}
+{% block content %}
+    <h2>Appointments</h2>
+    {% if request.session.role == 'patient' %}
+        <a href="{% url 'book_appointment' %}">Book Appointment</a>
+    {% endif %}
+    <table>
+        <tr>
+            <th>Patient</th>
+            <th>Doctor</th>
+            <th>Date & Time</th>
+            <th>Reason</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+        {% for appointment in appointments %}
+            <tr>
+                <td>{{ appointment.patient }}</td>
+                <td>{{ appointment.doctor }}</td>
+                <td>{{ appointment.date_time }}</td>
+                <td>{{ appointment.reason }}</td>
+                <td>{{ appointment.status }}</td>
+                <td>
+                    {% if appointment.status == 'scheduled' %}
+                        <a href="{% url 'cancel_appointment' appointment.id %}" onclick="return confirm('Are you sure?')">Cancel</a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

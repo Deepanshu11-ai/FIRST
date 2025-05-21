@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="page-title">Room Bookings</h1>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-calendar-plus me-2"></i> Create New Booking
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="create">
+                    <div class="mb-3">
+                        <label for="student_id" class="form-label">Select Student</label>
+                        <select class="form-select" id="student_id" name="student_id" required>
+                            <option value="" selected disabled>Choose a student</option>
+                            {% for student in students %}
+                            <option value="{{ student.id }}">{{ student.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="room_id" class="form-label">Select Room</label>
+                        <select class="form-select" id="room_id" name="room_id" required>
+                            <option value="" selected disabled>Choose a room</option>
+                            {% for room in rooms %}
+                            <option value="{{ room.id }}">Room {{ room.number }} ({{ room.type }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-calendar-check me-2"></i>Book Room
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-calendar-check me-2"></i> Booking List
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Student</th>
+                                <th>Room</th>
+                                <th>Booking Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in bookings %}
+                            <tr>
+                                <td>{{ booking.id }}</td>
+                                <td>
+                                    <form method="post" style="display:inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="update">
+                                        <input type="hidden" name="id" value="{{ booking.id }}">
+                                        <select name="student_id" class="form-select form-select-sm" required>
+                                            {% for student in students %}
+                                            <option value="{{ student.id }}" {% if student.id == booking.student_id %}selected{% endif %}>{{ student.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                </td>
+                                <td>
+                                        <select name="room_id" class="form-select form-select-sm" required>
+                                            {% for room in rooms %}
+                                            <option value="{{ room.id }}" {% if room.id == booking.room_id %}selected{% endif %}>Room {{ room.number }} ({{ room.type }})</option>
+                                            {% endfor %}
+                                        </select>
+                                </td>
+                                <td>{{ booking.booking_date }}</td>
+                                <td>
+                                        <button type="submit" class="btn btn-sm btn-primary" title="Update">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </form>
+                                    <form method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="id" value="{{ booking.id }}">
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Cancel">
+                                            <i class="fas fa-times-circle"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center">No bookings available</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

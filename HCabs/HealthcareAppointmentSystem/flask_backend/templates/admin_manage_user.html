@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add New User</title>
+</head>
+<body>
+    <h1>Add New User</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br><br>
+        <label for="role">Role:</label>
+        <select id="role" name="role" required>
+            <option value="patient">Patient</option>
+            <option value="doctor">Doctor</option>
+            <option value="admin">Admin</option>
+        </select><br><br>
+        <button type="submit">Add User</button>
+    </form>
+    <a href="{% url 'admin_dashboard' %}">Back to Admin Dashboard</a>
+</body>
+</html>

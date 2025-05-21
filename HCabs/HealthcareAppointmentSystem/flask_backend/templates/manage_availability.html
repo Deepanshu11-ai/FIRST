@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Availability | Healthcare Portal{% endblock %}
+
+{% block navigation %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+    <div class="container">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'doctor_dashboard' %}">
+                        <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'manage_availability' %}">
+                        <i class="fas fa-clock me-1"></i> Manage Availability
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'logout' %}">
+                        <i class="fas fa-sign-out-alt me-1"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm animate__animated animate__fadeIn">
+            <div class="card-body">
+                <h1 class="h3 mb-3">
+                    <i class="fas fa-clock me-2 text-primary"></i>Manage Availability
+                </h1>
+                <p class="text-muted">Set your available time slots for patient appointments</p>
+                
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show animate__animated animate__fadeIn" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow-sm animate__animated animate__fadeInLeft">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="fas fa-plus-circle me-2 text-primary"></i>Add Availability</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="start_time" class="form-label"><i class="fas fa-hourglass-start me-2"></i>Start Time</label>
+                        <input type="datetime-local" class="form-control" id="start_time" name="start_time" required>
+                        <div class="invalid-feedback">Please select a start time.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="end_time" class="form-label"><i class="fas fa-hourglass-end me-2"></i>End Time</label>
+                        <input type="datetime-local" class="form-control" id="end_time" name="end_time" required>
+                        <div class="invalid-feedback">Please select an end time.</div>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Add Availability
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card shadow-sm animate__animated animate__fadeInRight">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="fas fa-calendar-alt me-2 text-primary"></i>Your Availability</h5>
+            </div>
+            <div class="card-body">
+                <div id="calendar"></div>
+                <div class="text-center mt-3">
+                    <a href="{% url 'doctor_dashboard' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Validate that end time is after start time
+        const startTimeInput = document.getElementById('start_time');
+        const endTimeInput = document.getElementById('end_time');
+        const form = document.querySelector('form');
+        
+        form.addEventListener('submit', function(event) {
+            const startTime = new Date(startTimeInput.value);
+            const endTime = new Date(endTimeInput.value);
+            
+            if (endTime <= startTime) {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-danger alert-dismissible fade show animate__animated animate__fadeIn mt-3';
+                alertDiv.role = 'alert';
+                alertDiv.innerHTML = `
+                    End time must be after start time.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                
+                form.prepend(alertDiv);
+            }
+        });
+    });
+</script>
+{% endblock %}
